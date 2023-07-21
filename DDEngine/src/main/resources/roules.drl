@@ -1,0 +1,14 @@
+package myfirstproject.rules
+
+
+import org.drools6.ddengine.model.Product;
+import org.drools6.ddengine.enums.ClassCar;
+
+rule "Classify Product - Low"
+
+    when
+        $i : Product(productCost < 200)
+    then 
+        $i.setClassCar(ClassCar.CHEEP);
+end
+
