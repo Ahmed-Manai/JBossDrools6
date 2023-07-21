@@ -1,30 +1,36 @@
 package org.drools6.ddengine;
 
-//import org.drools.devguide.eshop.model.Item;
-
-import org.drools6.ddengine.model.Product;
-
-import org.kie.api.KieServices;
-import org.kie.api.runtime.KieContainer;
+import java.io.PrintStream;
+import javax.inject.Inject;
+import org.drools.devguide.eshop.model.Item;
+import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.environment.se.WeldContainer;
+import org.kie.api.cdi.KSession;
 import org.kie.api.runtime.KieSession;
 
 public class App 
 {
+    @Inject
+    @KSession("")
+
+    KieSession kSession;
+
+    public void start(){
+        Item item = new Item("A", 123.0, 234.0);
+        System.out.println("Item Category : " + item.getCategory());
+        kSession.insert(item);
+        int fired = kSession.fireAllRules();
+        System.out.println("Number of Rules executed = " + fired);
+        System.out.println("Item Category: " + item.getCategory());
+    }
+
     public static void main( String[] args )
     {
-       System.out.println("Bootstrapping the rule Engine...");
+        Weld weld = new Weld();
 
-       //Bootstrapping a rule Engine Session
-       KieServices ks = KieServices.Factory.get();
-       KieContainer kContainer = ks.getKieClasspathContainer();
-       KieSession kSession = kContainer.newKieSession();
-
-       //Item item = new Item("A", 1000.0, 2000.0);
-       Product product = new Product("Car", 12.8, 33.8);
-       System.out.println("Item Category: " + product.getClassCar());
-       kSession.insert(product);
-       int fired = kSession.fireAllRules();
-       System.out.println("Number of Rules executed = " + fired);
-       System.out.println("Item Category: " + product.getClassCar());
+        WeldContainer wc = weld.initialize();
+        App bean = wc.instance().select(App.class).get();
+        bean.start();
+        weld.shutdown();
     }
 }
